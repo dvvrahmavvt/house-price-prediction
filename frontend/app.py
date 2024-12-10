@@ -1,6 +1,6 @@
 import streamlit as st
-import pandas as pd
 import requests
+import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
@@ -11,14 +11,29 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler
 
-# Konfigurasi halaman
-st.set_page_config(page_title="Prediksi Harga Rumah", layout="wide")
+# Application Configuration
+st.set_page_config(
+    page_title="House Price Prediction System", 
+    page_icon="🏠", 
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
+
+
+# Sidebar Navigation
+def sidebar_navigation():
+    st.sidebar.title("🏡 Navigasi")
+    menu = st.sidebar.radio(
+        "Pilih Halaman",
+        ["Beranda", "Dataset", "Eksplorasi Data", "Visualisasi", "Model", "Prediksi Harga"],
+        index=0,
+    )
+    return menu
 
 # Fungsi untuk memuat data
 @st.cache_data
 def load_data():
     try:
-        # Ganti dengan path dataset Anda
         data = pd.read_csv("results_cleaned.csv")
         return data
     except Exception as e:
@@ -26,7 +41,7 @@ def load_data():
         return pd.DataFrame()
 
 # Konfigurasi API
-BACKEND_URL = "http://localhost:8081/api/predict"
+BACKEND_URL = "http://127.0.0.1:5000/predict"
 
 # Memuat dataset
 data = load_data()
@@ -112,14 +127,6 @@ def preprocess_location(data):
     location_mapping = {loc: idx for idx, loc in enumerate(data['location'].unique())}
     return location_mapping
 
-# Sidebar navigasi
-def sidebar_navigation():
-    st.sidebar.title("Menu Navigasi")
-    menu = st.sidebar.radio("Pilih Menu", 
-        ["Beranda", "Dataset", "Eksplorasi Data", "Visualisasi", "Model","Prediksi Harga"]
-    )
-    return menu
-
 # Halaman Beranda
 def home_page():
     st.title("Sistem Prediksi Harga Rumah")
@@ -139,7 +146,7 @@ def home_page():
     if not data.empty:
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Total Data", len(data))
+            st.metric("Total Data", len(data_cleaned))
         with col2:
             st.metric("Harga Rata-rata", f"Rp {data['price'].mean():,.0f}")
         with col3:
@@ -361,9 +368,12 @@ def prediction_page():
                 st.success(f"### Prediksi Harga Rumah: Rp {prediction:,.2f}")
                 
                 # Bandingkan dengan data historis
-                similar_houses = data[
-                    (data['bedroom'] == bedroom_count) & 
-                    (data['bathroom'] == bathroom_count) & 
+                similar_houses = data_cleaned[
+                    (data_cleaned['bedroom_count'] == bedroom_count) & 
+                    (data_cleaned['bathroom_count'] == bathroom_count) & 
+                    (data_cleaned['carport_count'] == carport_count) &
+                    (data_cleaned['land_area'] == land_area)&
+                    (data_cleaned['building_area_m2'] == building_area)&
                     (data['location'] == location_name)
                 ]
                 

@@ -1,8 +1,7 @@
 package com.dewi.housing.dto;
 
 public class HousePriceRequest {
-    private double price;
-    private String address;
+
     private int bedroomCount;
     private int bathroomCount;
     private int carportCount;
@@ -11,21 +10,6 @@ public class HousePriceRequest {
     private int locationEncoded;
 
     // Getters and Setters
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     public int getBedroomCount() {
         return bedroomCount;
@@ -75,8 +59,9 @@ public class HousePriceRequest {
         this.locationEncoded = locationEncoded;
     }
 
+    // Method to validate the request
     public boolean isValid() {
-        
-        return price > 0 && address != null && !address.isEmpty();
+      
+        return bedroomCount > 0 && bathroomCount >= 0 && carportCount >= 0 && landArea > 0 && buildingArea > 0;
     }
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "prediction_result")
 public class PredictionResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +18,7 @@ public class PredictionResult {
     private int locationEncoded;
     private double predictedPrice;
 
-    private LocalDateTime predictionTime; // Tambahkan atribut ini
+    private LocalDateTime predictionTime; 
 
     // Getter dan Setter untuk semua atribut
     public Long getId() {

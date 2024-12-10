@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import pickle
 import numpy as np
-import traceback  # Tambahkan untuk error handling
+import traceback
 
 app = Flask(__name__)
 
@@ -15,9 +15,11 @@ except Exception as e:
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    print("Received prediction request") 
     try:
         # Get JSON payload from request
         data = request.json
+        print(f"Received data: {data}")
         
         # Validasi input
         required_keys = ['bedroomCount', 'bathroomCount', 'carportCount', 
@@ -54,4 +56,4 @@ def predict():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

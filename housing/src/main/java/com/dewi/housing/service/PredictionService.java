@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.List;
-
 
 @Service
 public class PredictionService {
@@ -33,9 +33,10 @@ public class PredictionService {
 
     @Transactional
     public double predictAndSavePrice(HousePriceRequest request) {
-        // Validasi input
-        if (!request.isValid()) {
-            throw new IllegalArgumentException("Invalid house price request");
+        // Validasi input lebih detail
+        if (request == null) {
+            logger.error("Prediction request is null");
+            throw new IllegalArgumentException("Prediction request cannot be null");
         }
 
         try {
@@ -45,10 +46,13 @@ public class PredictionService {
             // Simpan hasil prediksi
             PredictionResult result = savePredictionResult(request, predictedPrice);
             
-            logger.info("Prediction successful: {}", predictedPrice);
+            logger.info("Prediction successful for request: {}, Predicted Price: {}", request, predictedPrice);
             return predictedPrice;
+        } catch (WebClientResponseException e) {
+            logger.error("API Response Error: Status {}, Body {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Gagal terhubung dengan Flask API", e);
         } catch (Exception e) {
-            logger.error("Prediction error", e);
+            logger.error("Prediction process failed", e);
             throw new RuntimeException("Prediksi harga gagal", e);
         }
     }
@@ -56,16 +60,40 @@ public class PredictionService {
     private Double predictPriceFromAPI(HousePriceRequest request) {
         return webClient.post()
             .uri("/predict")
-            .bodyValue(request)
+            .bodyValue(convertRequestToAPIFormat(request))
             .retrieve()
             .bodyToMono(Map.class)
             .map(response -> {
-                if (response.containsKey("predictedPrice")) {
-                    return ((Number) response.get("predictedPrice")).doubleValue();
+                // Log raw response untuk debugging
+                logger.debug("Raw API Response: {}", response);
+
+                // Fleksibel dalam membaca response
+                Object priceValue = response.get("predictedPrice") != null 
+                    ? response.get("predictedPrice") 
+                    : response.get("predicted_price");
+
+                if (priceValue != null) {
+                    return ((Number) priceValue).doubleValue();
                 }
-                throw new RuntimeException("Invalid API response");
+                throw new RuntimeException("Tidak dapat menemukan prediksi harga di response API");
+            })
+            .onErrorResume(e -> {
+                logger.error("Error in API prediction", e);
+                return Mono.error(new RuntimeException("Gagal melakukan prediksi", e));
             })
             .block();
+    }
+
+    // Metode tambahan untuk mengonversi request jika perlu
+    private Map<String, Object> convertRequestToAPIFormat(HousePriceRequest request) {
+        return Map.of(
+            "bedroom_count", request.getBedroomCount(),
+            "bathroom_count", request.getBathroomCount(),
+            "carport_count", request.getCarportCount(),
+            "land_area", request.getLandArea(),
+            "building_area", request.getBuildingArea(),
+            "location_encoded", request.getLocationEncoded()
+        );
     }
 
     private PredictionResult savePredictionResult(HousePriceRequest request, Double predictedPrice) {
@@ -79,7 +107,10 @@ public class PredictionService {
         result.setPredictedPrice(predictedPrice);
         result.setPredictionTime(LocalDateTime.now());
 
-        return predictionRepository.save(result);
+        // Tambahkan log untuk konfirmasi penyimpanan
+        PredictionResult savedResult = predictionRepository.save(result);
+        logger.info("Prediction result saved with ID: {}", savedResult.getId());
+        return savedResult;
     }
 
     // Metode tambahan untuk analisis dan statistik
