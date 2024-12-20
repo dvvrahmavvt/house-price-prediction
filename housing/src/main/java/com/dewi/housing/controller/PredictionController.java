@@ -1,7 +1,6 @@
 package com.dewi.housing.controller;
 
 import com.dewi.housing.dto.HousePriceRequest;
-import com.dewi.housing.entity.PredictionResult;
 import com.dewi.housing.service.PredictionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +56,7 @@ public class PredictionController {
         }
     }
 
-    // Endpoint tambahan untuk melihat prediksi tersimpan (opsional)
+    // Endpoint tambahan untuk melihat prediksi tersimpan
     @GetMapping("/predictions")
     public ResponseEntity<?> getAllPredictions() {
         try {

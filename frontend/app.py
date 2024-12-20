@@ -19,7 +19,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-
 # Sidebar Navigation
 def sidebar_navigation():
     st.sidebar.title("🏡 Navigasi")
@@ -126,6 +125,7 @@ def preprocess_location(data):
     # Encode lokasi jika belum di-encode
     location_mapping = {loc: idx for idx, loc in enumerate(data['location'].unique())}
     return location_mapping
+    
 
 # Halaman Beranda
 def home_page():
@@ -325,29 +325,61 @@ def model_page():
     # Menampilkan plot di Streamlit
     st.pyplot(fig)
 
-# Halaman Prediksi
+# Halaman Prediksi 
 def prediction_page():
-    st.title("Prediksi Harga Rumah")
-    
+    st.markdown("""
+        <style>
+        .title-text {
+            text-align: center;
+            color: #3C3C3C;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .subtitle-text {
+            text-align: center;
+            color: #5B5B5B;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        .stButton > button {
+            width: 100%;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border-radius: 10px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Judul dan Subjudul
+    st.markdown('<p class="title-text">🏠 Prediksi Harga Rumah</p>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle-text">Masukkan detail properti Anda untuk mendapatkan perkiraan harga rumah.</p>', unsafe_allow_html=True)
+
     # Mapping lokasi
     location_mapping = preprocess_location(data)
-    
-    # Input fitur
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        bedroom_count = st.number_input("Jumlah Kamar Tidur", min_value=1, max_value=10, value=3)
-        bathroom_count = st.number_input("Jumlah Kamar Mandi", min_value=1, max_value=10, value=2)
-        carport_count = st.number_input("Jumlah Carport", min_value=0, max_value=5, value=1)
-    
-    with col2:
-        land_area = st.number_input("Luas Lahan (m²)", min_value=10.0, max_value=10000.0, value=100.0)
-        building_area = st.number_input("Luas Bangunan (m²)", min_value=10.0, max_value=5000.0, value=80.0)
-        location_name = st.selectbox("Lokasi", options=list(location_mapping.keys()))
+
+    # Input fitur dengan Desain Grid
+    with st.container():
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            bedroom_count = st.number_input("🛏 Jumlah Kamar Tidur", min_value=1, max_value=10, value=3)
+            bathroom_count = st.number_input("🛁 Jumlah Kamar Mandi", min_value=1, max_value=10, value=2)
+            carport_count = st.number_input("🚗 Jumlah Carport", min_value=0, max_value=5, value=1)
+        
+        with col2:
+            land_area = st.number_input("📐 Luas Lahan (m²)", min_value=10.0, max_value=10000.0, value=100.0)
+            building_area = st.number_input("🏢 Luas Bangunan (m²)", min_value=10.0, max_value=5000.0, value=80.0)
+            location_name = st.selectbox("📍 Lokasi Properti", options=list(location_mapping.keys()))
     
     location_encoded = location_mapping[location_name]
-    
-    if st.button("Prediksi Harga"):
+
+    # Tombol Prediksi dengan Efek Hover
+    st.markdown("### ")
+    pred_button = st.button("**Prediksi Harga Rumah**")
+
+    if pred_button:
         payload = {
             "bedroomCount": bedroom_count,
             "bathroomCount": bathroom_count,
@@ -356,37 +388,40 @@ def prediction_page():
             "buildingArea": building_area,
             "locationEncoded": location_encoded
         }
-        
+
         try:
             response = requests.post(BACKEND_URL, json=payload, timeout=10)
             response.raise_for_status()
-            
             result = response.json()
-            
+
             if "predictedPrice" in result:
                 prediction = result["predictedPrice"]
-                st.success(f"### Prediksi Harga Rumah: Rp {prediction:,.2f}")
-                
-                # Bandingkan dengan data historis
+
+                # Tampilan Harga Prediksi
+                st.markdown("""
+                    <div style='text-align: center; margin-top: 30px;'>
+                        <h2 style='color: #28A745;'>💰 Perkiraan Harga Rumah</h2>
+                        <h1 style='font-size: 48px; color: #007BFF;'>Rp {:,.2f}</h1>
+                    </div>
+                """.format(prediction), unsafe_allow_html=True)
+
+                # Bandingkan dengan Data Historis
                 similar_houses = data_cleaned[
-                    (data_cleaned['bedroom_count'] == bedroom_count) & 
-                    (data_cleaned['bathroom_count'] == bathroom_count) & 
-                    (data_cleaned['carport_count'] == carport_count) &
-                    (data_cleaned['land_area'] == land_area)&
-                    (data_cleaned['building_area_m2'] == building_area)&
+                    (data_cleaned['bathroom_count'] == bathroom_count) &
+                    (data_cleaned['land_area'] == land_area) &
+                    (data_cleaned['building_area_m2'] == building_area) &
                     (data['location'] == location_name)
                 ]
-                
+
                 if not similar_houses.empty:
-                    st.info(f"Harga Rumah Serupa: Rp {similar_houses['price'].mean():,.2f}")
+                    st.info(f"📊 Harga Rumah Serupa: Rp {similar_houses['price'].mean():,.2f}")
             else:
-                st.error("Format respons tidak valid")
-        
+                st.error("⚠️ Format respons tidak valid")
+
         except requests.exceptions.RequestException as req_err:
             st.error(f"Kesalahan Jaringan: {req_err}")
         except Exception as e:
-            st.error(f"Kesalahan tidak terduga: {e}")
-
+            st.error(f"Kesalahan Tidak Terduga: {e}")
 # Halaman Utama
 def main():
     menu = sidebar_navigation()

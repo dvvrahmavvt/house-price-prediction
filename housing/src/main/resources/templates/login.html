@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Sistem Informasi Prediksi Harga Rumah</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    
+    <script>
+        // Tailwind CSS Custom Configuration
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui']
+                    }
+                }
+            }
+        };
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+    <div class="w-full max-w-4xl">
+        <div class="flex flex-col md:flex-row bg-white shadow-lg rounded-lg overflow-hidden">
+            <!-- Login Illustration -->
+            <div class="hidden md:flex md:w-1/2 bg-gradient-to-r from-blue-500 to-teal-400 items-center justify-center p-8">
+                <img 
+                    src="https://storage.googleapis.com/a1aa/image/kCj60WNQRL59DV9k0lIIgHUikp2RRDm6dmeS9SLpn0kTs18JA.jpg" 
+                    alt="House Price Prediction Login Illustration" 
+                    class="w-full max-h-[400px] object-contain" 
+                    width="400" 
+                    height="400" 
+                    loading="lazy"
+                />
+            </div>
+            
+            <!-- Login Form -->
+            <div class="w-full md:w-1/2 p-8 flex flex-col justify-center">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-blue-600 mb-4">Selamat Datang</h2>
+                    <p class="text-gray-600 mb-6">
+                        Silakan login ke akun Anda untuk mengakses dashboard prediksi harga rumah cerdas.
+                    </p>
+                </div>
+                
+                <form id="loginForm" action="/login" method="post">
+                    <!-- Username Input -->
+                    <div class="mb-4">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input 
+                                type="text" 
+                                name="username" 
+                                placeholder="Username" 
+                                required 
+                                autocomplete="username"
+                                class="w-full pl-10 px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                    </div>
+                    
+                    <!-- Password Input -->
+                    <div class="mb-4">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input 
+                                type="password" 
+                                id="passwordInput" 
+                                name="password" 
+                                placeholder="Password" 
+                                required 
+                                autocomplete="current-password"
+                                class="w-full pl-10 px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <button 
+                                type="button" 
+                                id="togglePassword" 
+                                aria-label="Toggle password visibility"
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500"
+                            >
+                                <i class="fas fa-eye-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <input 
+                                type="checkbox" 
+                                id="rememberCheck" 
+                                class="form-checkbox h-4 w-4 text-blue-600"
+                            />
+                            <label for="rememberCheck" class="ml-2 text-gray-600">Ingat Saya</label>
+                        </div>
+                        <a href="/lupa-password" class="text-blue-600 hover:underline">Lupa Password?</a>
+                    </div>
+                    
+                    <!-- Login Button -->
+                    <button 
+                        type="submit" 
+                        class="w-full py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition duration-300"
+                    >
+                        Login
+                    </button>
+                    
+                    <!-- Social Login -->
+                    <div class="text-center mt-6">
+                        <p class="text-gray-600 mb-4">Atau login dengan</p>
+                        <div class="flex justify-center space-x-4">
+                            <button 
+                                type="button" 
+                                aria-label="Login with Google"
+                                class="w-10 h-10 flex items-center justify-center border rounded-full text-blue-600 hover:bg-blue-100 transition duration-300"
+                            >
+                                <i class="fab fa-google"></i>
+                            </button>
+                            <button 
+                                type="button" 
+                                aria-label="Login with Facebook"
+                                class="w-10 h-10 flex items-center justify-center border rounded-full text-blue-600 hover:bg-blue-100 transition duration-300"
+                            >
+                                <i class="fab fa-facebook-f"></i>
+                            </button>
+                            <button 
+                                type="button" 
+                                aria-label="Login with GitHub"
+                                class="w-10 h-10 flex items-center justify-center border rounded-full text-blue-600 hover:bg-blue-100 transition duration-300"
+                            >
+                                <i class="fab fa-github"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Register Account -->
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">
+                        Belum punya akun? <a href="/daftar" class="text-blue-600 hover:underline">Daftar Sekarang</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('passwordInput');
+            const togglePasswordButton = document.getElementById('togglePassword');
+            
+            togglePasswordButton.addEventListener('click', function() {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye-slash');
+                icon.classList.toggle('fa-eye');
+            });
+        });
+    </script>
+</body>
+</html>

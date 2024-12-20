@@ -61,7 +61,7 @@ public class HousePriceRequest {
 
     // Method to validate the request
     public boolean isValid() {
-      
+    
         return bedroomCount > 0 && bathroomCount >= 0 && carportCount >= 0 && landArea > 0 && buildingArea > 0;
     }
 }

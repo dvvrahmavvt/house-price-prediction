@@ -44,6 +44,7 @@ public class PredictionService {
             Double predictedPrice = predictPriceFromAPI(request);
             
             // Simpan hasil prediksi
+            
             PredictionResult result = savePredictionResult(request, predictedPrice);
             
             logger.info("Prediction successful for request: {}, Predicted Price: {}", request, predictedPrice);

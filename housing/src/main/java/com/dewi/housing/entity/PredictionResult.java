@@ -17,7 +17,6 @@ public class PredictionResult {
     private double buildingArea;
     private int locationEncoded;
     private double predictedPrice;
-
     private LocalDateTime predictionTime; 
 
     // Getter dan Setter untuk semua atribut
